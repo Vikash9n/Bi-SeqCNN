@@ -52,6 +52,7 @@ Please cite as:
 Vikash Kumar, Akshay Deepak, Ashish Ranjan, and Aravind Prakash. "Bi-SeqCNN: A Novel Light-weight Bi-directional CNN Architecture for Protein Function Prediction." IEEE/ACM Transactions on Computational Biology and Bioinformatics (Under Revision).
 
 
-[finale2earchitecture.pdf](https://github.com/user-attachments/files/15524295/finale2earchitecture.pdf)
+![Bi-SeqCNNArchitecture](https://github.com/Vikash9n/Bi-SeqCNN/assets/85949447/f75736ca-7847-4481-a212-98a2697129f2)
+
 
 

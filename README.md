@@ -49,8 +49,7 @@ The dataset are available at gdrive: https://bit.ly/3EMJhLx
 
 Please cite as:
 
-Vikash Kumar, Akshay Deepak, Ashish Ranjan, and Aravind Prakash. "Lite-SeqCNN: A Light-weight Deep 
-CNN Architecture for Protein Function Prediction." IEEE/ACM Transactions on Computational Biology 
+Vikash Kumar, Akshay Deepak, Ashish Ranjan, and Aravind Prakash. "Bi-SeqCNN: A Novel Light-weight Bi-directional CNN Architecture for Protein Function Prediction." IEEE/ACM Transactions on Computational Biology 
 and Bioinformatics (2023).
 
 

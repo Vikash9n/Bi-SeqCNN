@@ -1,6 +1,6 @@
-# Bi-SeqCNN
-# Lite_SeqCNN+
-This reprository is for Lite-SeqCNN+.
+# Bi-SeqCNN+
+
+This reprository is for Bi-SeqCNN+.
 
 To run the python script, follow **the code example given in the folder Example**.
 
@@ -9,9 +9,9 @@ This has following main python files.
 
 
   1. Evaluate.py - This python file contains the code for the evaluation metrics used.
-  2. Lite_SeqCNN_encoder.py - This contains the code for the construction of the posterior probability (output).
-  3. Lite_SeqCNN_plus.py - This contains the code for the ensemble model.
-  4. Segmentation.py - This python file contains the code for segmentation fo the protein sequences used for training the segment encoder.
+  2. Bi_SeqCNN_encoder.py - This contains the code for the construction of the posterior probability (output).
+  3. Bi_SeqCNN_plus.py - This contains the code for the ensemble model.
+  4. Segmentation.py - This python file contains the code for segmentation of the protein sequences used for training the segment encoder.
 
 
 Experimental Setups:-->
@@ -19,7 +19,7 @@ Experimental Setups:-->
 Step 1:--> Creating a segmented dataset
 
         This will allow creating a fixed-sized segments for the protein sequence. Execute function segmentation 
-        from the Segmenation.py with parameter (segmentSize,Overlapping) as (200,150).
+        from the Segmenation.py with parameter (segmentSize, Overlapping) as (300, 50).
         
 Step 2:--> Training the sequence segment encoder
 
@@ -27,22 +27,22 @@ Step 2:--> Training the sequence segment encoder
         
         (i) Creating a tokenized segments (i.e., a string of n-mers)
         
-        (ii) Train the dilated CNN-based architecture.
+        (ii) Train the Bi-directional CNN-based architecture.
         
-        For this, execute the Lite_SegCNN_encoder.py.
+        For this, execute the Bi_SegCNN_encoder.py.
 
-This trained segmented encoder is later used with the LiteSeqCNN+.
-
-
-Implementing LiteSeqCNN+ :-->
+This trained segmented encoder is later used with the Bi-SeqCNN+.
 
 
-      This is an ensemble PFP framework based on multiple segment-size i.e., (200,300,400).
+Implementing Bi-SeqCNN+ :-->
+
+
+      This is an ensemble PFP framework based on multiple segment-size i.e., (150,300,450).
 
       The steps are as follows:
 
-      (1) Train segment encoder with the different segment size i.e., (200,300,400).
-      (2) Evaluate the model by executing the Lite_SeqCNN_plus.py for final evaluation.
+      (1) Train segment encoder with the different segment size i.e., (150,300,450).
+      (2) Evaluate the model by executing the Bi_SeqCNN_plus.py for final evaluation.
 
 
 The dataset are available at gdrive: https://bit.ly/3EMJhLx

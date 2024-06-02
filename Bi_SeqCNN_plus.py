@@ -53,7 +53,7 @@ def final_model(filename, segSize, nonOL,filter_size):
     max_seq_len = segSize - chunkSize + 1
     overlap = 50
  
-    model_path = '/content/gdrive/MyDrive/CAFA_C/bp/D_CNN/ablation/'+str(64)+'_model_'+str(1280)+'_'+str(nonOL)+'_'+str(filter_size)+'_'+ str(segSize) +'.h5'
+    model_path = '/content/gdrive/MyDrive/CAFA_C/bp/Bi_CNN/ablation/'+str(64)+'_model_'+str(1280)+'_'+str(nonOL)+'_'+str(filter_size)+'_'+ str(segSize) +'.h5'
     print(model_path)
     model = load_model(model_path, compile = False)
     print(model.summary())
@@ -91,7 +91,7 @@ def create_nn_model(dim):
 
 # Creates a HDF5 file 'my_model.h5'
 
-X_train_new1, Y_train_new = final_model("/content/gdrive/MyDrive/CAFA3/bp/train_data_bp1.csv", 200, 150,6)
+X_train_new1, Y_train_new = final_model("/content/gdrive/MyDrive/CAFA3/bp/train_data_bp1.csv", 150, 100,6)
 model11 = create_nn_model(Y_train_new[0].shape[0])
 print(model11.summary())
 early_stopping_monitor = EarlyStopping(monitor = 'val_loss', patience = 5, verbose = 1)
@@ -113,7 +113,7 @@ model12.fit(X_train_new2, Y_train_new.astype(None),
            batch_size = 150,
            verbose = True)
 
-X_train_new3, _ = final_model("/content/gdrive/MyDrive/CAFA3/bp/train_data_bp1.csv", 400, 350,6)
+X_train_new3, _ = final_model("/content/gdrive/MyDrive/CAFA3/bp/train_data_bp1.csv", 450, 400,6)
 model13 = create_nn_model(Y_train_new[0].shape[0])
 print(model13.summary())
 early_stopping_monitor = EarlyStopping(monitor = 'val_loss', patience = 5, verbose = 1)
@@ -160,9 +160,9 @@ from matplotlib import pyplot as plt
 
 # Testing
 def test_fun(file):
-    X_test_new1, Y_test_new = final_model(file, 200, 150, 6)
+    X_test_new1, Y_test_new = final_model(file, 150, 100, 6)
     X_test_new2, _ = final_model(file, 300,250,6)
-    X_test_new3, _ = final_model(file, 400,350,6)
+    X_test_new3, _ = final_model(file, 450,400,6)
 
     print(X_test_new1.shape, Y_test_new.shape)
     print(X_test_new2.shape, Y_test_new.shape)

@@ -21,7 +21,7 @@ from Evaluate import *
 np.random.seed(7)
 
 # Preparing For Training
-segmentSize = 200
+segmentSize = 300
 nonOL = segmentSize - 50
 SEG = str(segmentSize)
 
@@ -76,45 +76,77 @@ chunkSize = 4
 dict_Prop = dictionary(chunkSize)
 max_seq_len = segmentSize - chunkSize + 1
 
+class Bi_CNN(layers.Layer):
+	def __init__(self, no_of_filters, filter_size,dilation_rate):
+		super(Bi_CNN,self).__init__()
+		self.no_of_filters = no_of_filters
+		self.filter_size = filter_size
+		self.dilation_rate = dilation_rate
+		self.forward_cnn = layers.Conv1D(filters = no_of_filters, kernel_size=filter_size, dilation_rate=dilation_rate,
+												  strides=1, padding='causal',activation='linear',use_bias=True)
+		self.backward_cnn = layers.Conv1D(filters = no_of_filters, kernel_size=filter_size, dilation_rate=dilation_rate,
+												   strides=1, padding='causal',activation='linear',use_bias=True)
+		self.concat = layers.Concatenate(axis=-1)
+		self.add = layers.Add()
+
+	def call(self, inputs, mode='Concat'):
+		f_cnn = self.forward_cnn(inputs)                  # Forward Pass
+		r_input = tf.reverse(inputs, [-2])
+		b_cnn = self.backward_cnn(r_input)                # Backward Pass
+		b_cnn = tf.reverse(b_cnn,[-2])
+
+		if mode == 'Concat':
+			output = self.concat([f_cnn, b_cnn])
+		elif mode == 'Add':
+			output = self.add([f_cnn, b_cnn])
+		else:
+			output = f_cnn, b_cnn
+		return output
+
+	def get_config(self):
+		config = super(Bi_CNN,self).get_config().copy()
+		config.update({'no_of_filters': self.no_of_filters, 'filter_size': self.filter_size, 'dilation_rate': self.dilation_rate,})
+		return config
+
 def DC_CNN_Block(nb_filter, filter_length, dilation, l2_layer_reg):
-    def f(input_):
-        residual = input_
-        layer_out = layers.Conv1D(filters=nb_filter, kernel_size=filter_length, dilation_rate=dilation, 
-                                  activation='linear', padding='same', use_bias=True) (input_)
-        layer_out = layers.BatchNormalization(epsilon=1.1e-5)(layer_out)
-        layer_out = layers.LeakyReLU(alpha = 0.2)(layer_out)
-        return layer_out
-    return f
+	def f(input_):
+		residual = input_
+		layer_out = Bi_CNN(no_of_filters = nb_filter, filter_size = filter_length, dilation_rate=dilation)(input_)
+		
+		layer_out = layers.BatchNormalization(epsilon=1.1e-5)(layer_out)
+		layer_out = layers.LeakyReLU(alpha = 0.2)(layer_out)
+		return layer_out
+	return f
 
 embed_dim = 32
 ff_dim = 1280
-
 def DC_CNN_Model(top_words, seq_len, o_dim):
+	#embed_dim = 32
+	#f_num = 256
+	#f_size = [6,6,6,6,6]
+	#ff_dim = 200
 
-    f_num = 256
-    f_size = [6,6,6,6,6]
+	_input = layers.Input(shape=(seq_len,))
+	emd = layers.Embedding(top_words, embed_dim, input_length = seq_len)(_input)
+	drop1 = layers.Dropout(0.3)(emd)
 
-    _input = layers.Input(shape=(seq_len,))
-    emd = layers.Embedding(top_words, embed_dim, input_length = seq_len)(_input)
-    drop1 = layers.Dropout(0.3)(emd)
+	l1 = DC_CNN_Block(f_num, f_size[0], 1, 0.001)(drop1) 
+	l2 = DC_CNN_Block(f_num, f_size[1], 3, 0.001)(drop1)
+	l3 = DC_CNN_Block(f_num, f_size[2], 5, 0.001)(drop1)
+	l4 = DC_CNN_Block(f_num, f_size[3], 7, 0.001)(drop1)
+	l5 = DC_CNN_Block(f_num, f_size[4], 9, 0.001)(drop1)
 
-    l1 = DC_CNN_Block(f_num, f_size[0], 1, 0.001)(drop1) 
-    l2 = DC_CNN_Block(f_num, f_size[1], 3, 0.001)(drop1)
-    l3 = DC_CNN_Block(f_num, f_size[2], 5, 0.001)(drop1)
-    l4 = DC_CNN_Block(f_num, f_size[3], 7, 0.001)(drop1)
-    l5 = DC_CNN_Block(f_num, f_size[4], 9, 0.001)(drop1)
+	x = layers.Concatenate()([l1, l2, l3, l4, l5])
+	x = layers.GlobalAveragePooling1D()(x)
+	x = layers.Dropout(0.4)(x)
+	_output = layers.Dense(o_dim, kernel_initializer='normal', activation='sigmoid', name='CLASSIFIER')(x)
 
-    x = layers.Concatenate()([l1, l2, l3, l4, l5])
-    x = layers.GlobalAveragePooling1D()(x)
-    x = layers.Dropout(0.4)(x)
-    _output = layers.Dense(o_dim, kernel_initializer='normal', activation='sigmoid', name='CLASSIFIER')(x)
-
-    model = keras.Model(inputs=_input, outputs=_output)
-    model.compile(loss = tf.keras.losses.BinaryCrossentropy(),
-                  optimizer = tf.keras.optimizers.Adam(learning_rate=0.0005),
-                  metrics = tf.keras.metrics.BinaryAccuracy(threshold=0.5))
-    return model
-
+	model = keras.Model(inputs=_input, outputs=_output)
+	model.compile(loss = tf.keras.losses.BinaryCrossentropy(),
+				  optimizer = tf.keras.optimizers.Adam(learning_rate=0.0005),
+				  metrics = tf.keras.metrics.BinaryAccuracy(threshold=0.5))
+	return model
+    
 #CREATING N-GRAM
 x_train = nGram(x_tr, chunkSize, dict_Prop)
 x_validate = nGram(x_val, chunkSize, dict_Prop)

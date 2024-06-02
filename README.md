@@ -29,7 +29,7 @@ Step 2:--> Training the sequence segment encoder
         
         (ii) Train the Bi-directional CNN-based architecture.
         
-        For this, execute the Bi_SegCNN_encoder.py.
+        For this, execute the Bi_SeqCNN_encoder.py.
 
 This trained segmented encoder is later used with the Bi-SeqCNN+.
 
